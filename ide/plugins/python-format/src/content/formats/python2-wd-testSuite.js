@@ -285,8 +285,9 @@ function defaultExtension() {
   return this.options.defaultExtension;
 }
 
-function formatSuite(){
-  return "format suite";
+function compileSuite(testCases, filename){
+  return "compile Suite";
+  // place holder really
 }
 
 this.options = {

@@ -43,7 +43,7 @@ FormatCollection.getFormatDir = function() {
 FormatCollection.loadUserFormats = function(options) {
     var formatFile = FormatCollection.getFormatDir();
     formatFile.append("index.txt");
-    
+
     if (!formatFile.exists()) {
         return [];
     }
@@ -70,7 +70,7 @@ FormatCollection.saveUserFormats = function(formats) {
     }
     var conv = FileUtils.getUnicodeConverter(SeleniumIDE.Preferences.getString("encoding", "UTF-8"));
     text = conv.ConvertFromUnicode(text);
-    
+
     var formatFile = FormatCollection.getFormatDir();
     formatFile.append("index.txt");
     var stream = FileUtils.openFileOutputStream(formatFile);
@@ -86,17 +86,17 @@ FormatCollection.saveUserFormats = function(formats) {
 FormatCollection.loadFormatter = function(url, type) {
     const subScriptLoader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
       .getService(Components.interfaces.mozIJSSubScriptLoader);
-    
+
     var format = {};
     format.options = {};
     format.configForm = '';
     format.log = new Log("Format");
     format.playable = true;
     format.remoteControl = false;
-	
+
 	format.load = function(file){
 		if (file.startsWith('chrome://')) {
-			//extensions may load in their own files so allow an absolute URL 
+			//extensions may load in their own files so allow an absolute URL
 			subScriptLoader.loadSubScript(file, format);
 		} else {
 			//otherwise assume this is a packaged format file
@@ -138,13 +138,13 @@ FormatCollection.loadFormatter = function(url, type) {
             }
             return copy;
         }
-            
+
         format.createConfigForm = function(document) {
             var xml = '<vbox id="format-config" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">' + format.configForm + '</vbox>';
             var parser = new DOMParser();
             var element = parser.parseFromString(xml, "text/xml").documentElement;
             // If we directly return this element, "permission denied" exception occurs
-            // when the user clicks on the buttons or textboxes. I haven't figured out the reason, 
+            // when the user clicks on the buttons or textboxes. I haven't figured out the reason,
             // but as a workaround I'll just re-create the element and make a deep copy.
             return copyElement(document, element);
         }
@@ -157,7 +157,7 @@ FormatCollection.prototype.reloadFormats = function() {
     // user formats
     this.userFormats = FormatCollection.loadUserFormats(this.options);
     this.formats = this.presetFormats.concat(this.userFormats);
-    
+
     // plugin formats
     this.pluginFormats = FormatCollection.loadPluginFormats(this.options, this.pluginManager);
     this.formats = this.formats.concat(this.pluginFormats);
@@ -166,7 +166,7 @@ FormatCollection.prototype.reloadFormats = function() {
 FormatCollection.prototype.removeUserFormatAt = function(index) {
     this.userFormats.splice(index, 1);
     this.formats = this.presetFormats.concat(this.userFormats);
-    
+
     // plugin formats need adding in here too
     this.formats = this.formats.concat(this.pluginFormats);
 }
@@ -322,33 +322,61 @@ Format.prototype.saveAs = function(testCase, filename, exportTest) {
  * @param testSuite   the test suite to export
  * @param exportTest  ???
  */
+Format.prototype.compileSuiteAsNew = function(testSuite, exportTest){
+  var formatter = this.getFormatter();
+  try {
+    var file = showFilePicker(window, Editor.getString("exportTestSuiteAs"),
+                          Components.interfaces.nsIFilePicker.modeSave,
+                          TestSuite.TEST_SUITE_DIRECTORY_PREF,
+                          function(fp) {return fp.file;});
+
+    if (file != null) {
+      var outputText = "";
+
+      for(var i = 0; i < testSuite.tests.length; i++){
+        outputText += testSuite.tests[i].getTitle() + "\n";
+      }
+
+      var output = FileUtils.openFileOutputStream(file);
+      output.write(outputText, outputText.length);
+      output.close();
+      return true;
+    }
+  }
+  catch (err) {
+    alert("error: " + err);
+  }
+
+  return false;
+};
+
 Format.prototype.saveSuiteAsNew = function(testSuite, exportTest) {
     var formatter = this.getFormatter();
-    
+
     try {
         var file = null;
         file = showFilePicker(window, Editor.getString("exportTestSuiteAs"),
             Components.interfaces.nsIFilePicker.modeSave,
             TestSuite.TEST_SUITE_DIRECTORY_PREF,
             function(fp) {return fp.file;});
-        
+
         if (file != null) {
             var filepath = [];
             filepath = FileUtils.splitPath(file);
-            
+
             var filename = filepath[filepath.length -1];
             var output = FileUtils.openFileOutputStream(file);
             var converter = FileUtils.getUnicodeConverter(SeleniumIDE.Preferences.getString("encoding", "UTF-8"));
             var text = converter.ConvertFromUnicode(formatter
                 .formatSuite(testSuite, filename));
-            
+
             output.write(text, text.length);
-            
+
             var fin = converter.Finish();
             if (fin.length > 0) {
                 output.write(fin, fin.length);
             }
-            
+
             output.close();
             return true;
         }
@@ -356,7 +384,7 @@ Format.prototype.saveSuiteAsNew = function(testSuite, exportTest) {
     catch (err) {
         alert("error: " + err);
     }
-    
+
     return false;
 };
 
@@ -387,7 +415,7 @@ Format.prototype.load = function() {
 
 Format.prototype.loadFile = function(file, isURL) {
     this.log.debug("start loading: file=" + file);
-    
+
     var sis;
     if (isURL) {
         sis = FileUtils.openURLInputStream(file);
@@ -397,14 +425,14 @@ Format.prototype.loadFile = function(file, isURL) {
     var text = this.getUnicodeConverter().ConvertToUnicode(sis.read(sis.available()));
     var testCase = new TestCase();
     this.getFormatter().parse(testCase, text);
-    
+
     sis.close();
     testCase.recordModifiedInCommands();
     testCase.file = file;
     if (!isURL) {
         testCase.lastModifiedTime = file.lastModifiedTime;
     }
-    
+
     return testCase;
 }
 

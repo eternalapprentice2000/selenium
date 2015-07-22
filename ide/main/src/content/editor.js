@@ -633,6 +633,11 @@ Editor.prototype.exportTestSuiteWithFormat = function (format) {
   format.saveSuiteAsNew(this.app.getTestSuite().createCopy(), true);
 };
 
+Editor.prototype.exportCompiledTestSuiteWithFormat = function (format) {
+  this.view.syncModel();
+  format.saveSuiteAsNew(this.app.getTestSuite().createCopy(), true);
+};
+
 Editor.prototype.loadRecorderFor = function (contentWindow, isRootDocument) {
   this.log.debug("loadRecorderFor: " + contentWindow);
   if (this.recordingEnabled && (isRootDocument || this.recordFrameTitle) && this.safeLastWindow.windowEquals(contentWindow)) {
@@ -1020,6 +1025,11 @@ Editor.prototype.populateFormatsPopup = function (e, action, format) {
     if (action == "exportTestSuite" && typeof(formats[i].getFormatter().formatSuite) != 'function') {
       continue;
     }
+
+    if (action == "compileTestSuite" && typeof(formats[i].getFormatter().compileSuite) != 'function') {
+      continue;
+    }
+
     XulUtils.appendMenuItem(e, {
       type: "radio",
       name: action + "Formats",

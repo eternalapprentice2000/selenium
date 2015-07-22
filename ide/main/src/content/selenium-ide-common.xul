@@ -41,7 +41,7 @@ limitations under the License.
   <script type="application/x-javascript" src="chrome://selenium-ide/content/xhtml-entities.js"/>
   <script type="application/x-javascript" src="chrome://selenium-ide/content/selenium-core/scripts/selenium-browserdetect.js"/>
   <script type="application/x-javascript" src="chrome://selenium-ide/content/selenium-core/lib/prototype.js"/>
-  <script type="application/x-javascript" src="chrome://selenium-ide/content/selenium-core/lib/sizzle.js"/> 
+  <script type="application/x-javascript" src="chrome://selenium-ide/content/selenium-core/lib/sizzle.js"/>
   <script type="application/x-javascript" src="chrome://selenium-ide/content/selenium-core/scripts/atoms.js"/>
   <script type="application/x-javascript" src="chrome://selenium-ide/content/selenium-core/scripts/htmlutils.js"/>
   <script type="application/x-javascript" src="chrome://selenium-ide/content/selenium-core/scripts/xmlextras.js"/>
@@ -159,7 +159,7 @@ limitations under the License.
       <menuitem label="&saveTestCmd.label;" command="cmd_save" key="save-key" accesskey="S"/>
       <menuitem label="&saveTestAsCmd.label;" oncommand="window.editor.saveNewTestCase();" accesskey="A"/>
       <menu label="&exportCmd.label;" accesskey="E">
-        <menupopup id="popup_export_formats" onpopupshowing="window.editor.populateFormatsPopup(this, 'exportTestCase')" oncommand="window.editor.exportTestCaseWithFormat(window.editor.app.getFormats().selectFormat(event.target.getAttribute('value')))">
+        <menupopup id="popup_export_formats" onpopupshowing="window.editor.populateFormatsPopup(this, 'compileTestCase')" oncommand="window.editor.exportTestCaseWithFormat(window.editor.app.getFormats().selectFormat(event.target.getAttribute('value')))">
         </menupopup>
       </menu>
       <menu label="&recentTestCmd.label;">
@@ -175,6 +175,9 @@ limitations under the License.
       <menuitem label="&saveSuiteAsCmd.label;" command="cmd_save_suite_as" />
       <menu label="&exportSuiteCmd.label;" accesskey="X">
         <menupopup id="popup_export_formats_ts" onpopupshowing="window.editor.populateFormatsPopup(this, 'exportTestSuite')" oncommand="window.editor.exportTestSuiteWithFormat(window.editor.app.getFormats().selectFormat(event.target.getAttribute('value')))" />
+      </menu>
+      <menu label="Compile Test Suite">
+        <menupopup id="popup_compile_formats_ts" onpopupshowing="window.editor.populateFormatsPopup(this, 'compileTestSuite')" oncommand="window.editor.exportCompiledTestSuiteWithFormat(window.editor.app.getFormats().selectFormat(event.target.getAttribute('value')))" />
       </menu>
       <menu label="&recentSuiteCmd.label;">
         <menupopup id="popup_recent_suites" onpopupshowing="window.editor.app.recentTestSuites.populateMenu(this)" oncommand="window.editor.loadRecentSuite(event.target.getAttribute('value'))" /><!-- Samit: Enh: Prompt to save first -->
@@ -304,7 +307,7 @@ limitations under the License.
       <label id="suiteProgressFailures" value="0" flex="1"/>
     </hbox>
   </vbox>
-  
+
   <vbox id="tableViewUnavailable">
     <spacer flex="1" />
     <label value="&tableViewUnavailable.label;"/>
